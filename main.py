@@ -20,15 +20,19 @@ class Pantry():
             unit = temp_item.unit
 
             # Prompt for the quantity, showing the inferred unit
-            quantity = float(input(f"Enter item quantity (in {unit}): "))
+            try:
+                quantity = float(input(f"Enter item quantity (in {unit}): "))
+            except ValueError:
+                print("\nERROR: Quantity must be a number!")
+                quantity = float(input(f"Enter item quantity (in {unit}): "))
             expiration_date = input("Enter expiration date (MM/DD/YYYY): ")
 
             # Create a new item with the entered quantity and expiration date
             item = Item(name, quantity, expiration_date)
             self.items.append(item)
-            print(f"Added {item.quantity} {item.unit} of {item.name} to the pantry.")
+            print(f"Added {item.quantity} {item.unit} of {item.name} to the pantry.\n")
 
-            done_adding = input("Finished adding items (y/n)").lower()
+            done_adding = input("Finished adding items? (y/n)").lower()
 
     def view_items(self):
         if not self.items:
@@ -46,9 +50,38 @@ class Pantry():
                 if item.name == name:
                     self.items.remove(item)
                     print(f"Removed {item.name} from the pantry.")
-                    return
+                    break
+            print(f"Item '{name}' not found in the pantry.")
+            done_removing = input("Finished adding items? (y/n)").lower()
+
+    def used_items(self):
+        done_using = 0
+        while done_using == 0:
+            name = input("Enter item you used")
+            for item in self.items:
+                if item.name.lower() == name.lower():
+                    print(f"Remaining amount of {item.name}: {item.quantity} {item.unit}")
+                    used_amount = float(input("Enter the amount of the item used"))
+                    item.used_item(used_amount)
+                    print(f"Reduced amount of {item.name} by {used_amount}. {item.quantity} remaining")
+                    break
+            done_using = input("Finished adding items? (y/n)").lower()
             print(f"Item '{name}' not found in the pantry.")
 
+    def added_items(self):
+        done_adding = 0
+        while done_adding == 0:
+            name = input("Enter item you got")
+            for item in self.items:
+                if item.name.lower() == name.lower():
+                    print(f"Current amount of {item.name}: {item.quantity} {item.unit}")
+                    used_amount = float(input("Enter the amount of the item gotten"))
+                    item.used_item(used_amount)
+                    print(f"Increased amount of {item.name} by {used_amount}. {item.quantity} remaining")
+                    break
+            done_adding = input("Finished adding items? (y/n)").lower()
+
+            print(f"Item '{name}' not found in the pantry.")
     def save_to_file(self, filename="pantry.csv"):
         # Save pantry items to a CSV file
         with open(filename, mode='w', newline='') as file:
@@ -170,10 +203,21 @@ class Item():
             return (self.exp_date - today_date).days
 
     def print_info(self):
+
+        #Create spaces based on text length so it prints aligned
+        space1 = ""
+        space2 = ""
+        for i in range(16 - len(self.name)):
+            space1 += " "
+        for j in range(16 - len(self.unit)):
+            space2 += " "
+        if self.quantity%10 > 0:
+            space2 += " "
+
         if self.check_expired() == -1:
-            print(f"{self.name}, Quantity: {self.quantity} {self.unit}, Item has expired")
+            print(f"{self.name}{space1}  {round(self.quantity, 1)} {self.unit} {space2} Item has expired")
         else:
-            print(f"{self.name}, Quantity: {self.quantity} {self.unit}, expires in {self.check_expired()} days")
+            print(f"{self.name}{space1}  {round(self.quantity,1)} {self.unit} {space2}expires in {self.check_expired()} days")
 
     def used_item(self, usage):
         self.quantity -= usage
@@ -190,21 +234,31 @@ def main():
         print("\n=========================================\nWhat would you like to do?\n")
         print("1 - Add Items to Pantry")
         print("2 - Remove Items from Pantry")
-        print("3 - View Pantry\n")
+        print("3 - View Pantry")
+        print("4 - Enter Amount of Item Used Pantry")
+        print("5 - Add Amount of Item Gained")
+        print("0 - Exit\n")
 
         user_choice = int(input("Enter option: "))
         print("\n=========================================\n")
         if user_choice == 1:
             # Add items through input
             pantry.add_items()
-
-            # Save pantry to file
             pantry.save_to_file()
         if user_choice == 2:
             pantry.remove_items()
+            pantry.save_to_file()
         if user_choice == 3:
             # View items in the pantry
             pantry.view_items()
+        if user_choice == 4:
+            pantry.used_items()
+            pantry.save_to_file()
+        if user_choice == 5:
+            pantry.used_items()
+            pantry.save_to_file()
+        if user_choice == 0:
+            running = 0
 
 if __name__ == "__main__":
     main()

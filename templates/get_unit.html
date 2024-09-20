@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Unit</title>
+</head>
+<body>
+    <h1>Enter Unit for {{ name }}</h1>
+    <form action="/unit" method="POST">
+        <input type="hidden" name="name" value="{{ name }}">
+        <input type="hidden" name="quantity" value="{{ quantity }}">
+        <input type="hidden" name="exp_date" value="{{ exp_date }}">
+        <label for="unit">Unit:</label>
+        <input type="text" name="unit" id="unit" required>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

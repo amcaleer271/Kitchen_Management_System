@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantry Management</title>
+</head>
+<body>
+    <h1>Pantry Management System</h1>
+
+    <h2>Add Item:</h2>
+    <form action="{{ url_for('add_item') }}" method="POST">
+        <input type="text" name="name" placeholder="Item Name" required>
+        <input type="number" name="quantity" placeholder="Quantity" step="any" required>
+        <input type="text" name="exp_date" placeholder="Expiration Date (MM/DD/YYYY)" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <h2>Pantry contents:</h2>
+    <ul>
+        {% for item in pantry %}
+            <li>
+                {{ item.name }} - Quantity: {{ item.quantity }} - Expiration: {{ item.exp_date.strftime('%m/%d/%Y') }}
+                <form action="{{ url_for('edit_item') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="name" value="{{ item.name }}">
+                    <input type="number" name="quantity" placeholder="New Quantity" step="any"> <!-- Removed required -->
+                    <input type="text" name="exp_date" placeholder="New Expiration Date (MM/DD/YYYY)"> <!-- Remains unchanged -->
+                    <button type="submit">Edit</button>
+                </form>
+                <form action="{{ url_for('remove_item') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="name" value="{{ item.name }}">
+                    <button type="submit">Remove</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Search Pantry:</h2>
+    <form action="{{ url_for('search_pantry') }}" method="POST">
+        <input type="text" name="search" placeholder="Search for an item">
+        <button type="submit">Search</button>
+    </form>
+
+    {% if search_term %}
+        <h2>Results for: "{{ search_term }}"</h2>
+        <ul>
+            {% for item in pantry %}
+                <li>
+                    {{ item.name }} - Quantity: {{ item.quantity }} - Expiration: {{ item.exp_date.strftime('%m/%d/%Y') }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

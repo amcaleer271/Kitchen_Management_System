@@ -32,8 +32,14 @@ class Pantry():
             print(f"{filename} not found. Starting with an empty pantry.")
 
 
-class Item():
+class Item:
     UNIT_MAPPING = {}
+
+    def __init__(self, name, quantity, exp_date, unit=None):
+        self.name = name
+        self.quantity = quantity
+        self.unit = unit if unit else self.infer_unit(name)
+        self.exp_date = datetime.datetime.strptime(exp_date, "%m/%d/%Y").date()
 
     @staticmethod
     def load_units(filename="units.csv"):
@@ -52,12 +58,6 @@ class Item():
             writer = csv.writer(file)
             for name, unit in Item.UNIT_MAPPING.items():
                 writer.writerow([name, unit])
-
-    def __init__(self, name, quantity, exp_date, unit=None):
-        self.name = name
-        self.quantity = quantity
-        self.unit = unit if unit else self.infer_unit(name)
-        self.exp_date = datetime.datetime.strptime(exp_date, "%m/%d/%Y").date()
 
     def infer_unit(self, name):
         cleaned_name = name.lower().strip()
@@ -182,6 +182,7 @@ def get_unit():
     quantity = request.args.get('quantity')
     exp_date = request.args.get('exp_date')
     return render_template('get_unit.html', name=name, quantity=quantity, exp_date=exp_date)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
